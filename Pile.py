@@ -1,9 +1,14 @@
 import numpy as np
 
 class Pile: 
-	def __init__(self, Lx, Ly, dx, dy, initialT, initialH):
-		self.meshTemp = np.full((round(Lx/dx), round(Ly/dy)), initialT, dtype='float64') # initial temperature in C
+	def __init__(self, Lx, initialH, dx, dy, initialT):
+		initialO2 = 0.272 #kg m-3 simple paper
+		self.meshTemp = np.full((round(Lx/dx), round(initialH/dy)), initialT, dtype='float64') # initial temperature in C
+		self.meshO2 = np.full((round(Lx/dx), round(initialH/dy)), initialO2+0.01, dtype='float64') 
+
 		self.setBoundaryCondition(self.meshTemp, 10, 15, 10, 10)
+		self.setBoundaryCondition(self.meshO2, initialO2, initialO2, initialO2, initialO2)
+		
 		self.dx = dx
 		self.dy = dy
 		self.rhoMin = 100 #kg m-3
@@ -13,7 +18,7 @@ class Pile:
 		self.height = initialH
 		self.initMass()
 		self.averageRho()
-		self.voidFraction() #volume fraction
+		self.computeVoidFraction() #volume fraction
 
 	def initMass(self):
 		self.mass = self.area*self.rhoMin*(np.exp(self.height/(self.resistance*self.dryFraction))-1)*self.resistance*self.dryFraction
@@ -29,13 +34,13 @@ class Pile:
 		self.computeHeight()
 		self.averageRho()
 
-	def voidFraction(self):
-		return 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
+	def computeVoidFraction(self):
+		self.voidFraction = 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
 
 	def setBoundaryCondition(self, grid, top, bottom, left, right):
 		for j in range(1, len(grid[0])-1):
-			grid[0][j] = top # top edge
-			grid[len(grid)-1][j] = bottom # bottom edge
+			grid[0][j] = left # top edge
+			grid[len(grid)-1][j] = right # bottom edge
 		for i in range(1, len(grid)-1):
-			grid[i][0] = left # left edge
-			grid[i][len(grid[0])-1] = right # right edge
+			grid[i][0] = bottom # left edge
+			grid[i][len(grid[0])-1] = top # right edge
