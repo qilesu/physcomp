@@ -4,9 +4,9 @@ class Pile:
 	def __init__(self, Lx, initialH, dx, dy, initialT):
 		initialO2 = 0.272 #kg m-3 simple paper
 		initialX = 2e-2 #mol/m3
-		self.meshTemp = np.full((round(Lx/dx), round(initialH/dy)), initialT, dtype='float64') # initial temperature in C
-		self.meshO2 = np.full((round(Lx/dx), round(initialH/dy)), initialO2+0.01, dtype='float64') 
-		self.meshX = np.full((round(Lx/dx), round(initialH/dy)), initialX, dtype='float64')
+		self.meshTemp = np.full((round(Lx/dx)+2, round(initialH/dy))+2, initialT, dtype='float64') # initial temperature in C
+		self.meshO2 = np.full((round(Lx/dx)+2, round(initialH/dy))+2, initialO2+0.01, dtype='float64') 
+		self.meshX = np.full((round(Lx/dx)+2, round(initialH/dy))+2, initialX, dtype='float64')
 		self.setBoundaryCondition(self.meshTemp, 273+10, 273+15, 273+10, 273+10)
 		self.setBoundaryCondition(self.meshO2, initialO2, initialO2, initialO2, initialO2)
 		self.dx = dx
@@ -16,6 +16,7 @@ class Pile:
 		self.dryFraction = 0.3 #mass fraction
 		self.area = 1
 		self.height = initialH
+                self.topEdgeOfY = round(initialH/dy)
 		self.initMass()
 		self.averageRho()
 		self.computeVoidFraction() #volume fraction
@@ -38,12 +39,14 @@ class Pile:
 			self.voidFraction = 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
 
 	def setBoundaryCondition(self, grid, top, bottom, left, right):
+                # calculate number of grid in y direction that matters
+                numGridInY = round(pile.height/pile.dy)
 		for j in range(1, len(grid[0])-1):
-			grid[0][j] = left # top edge
-			grid[len(grid)-1][j] = right # bottom edge
+			grid[0][j] = left # left edge
+			grid[len(grid)-1][j] = right # right edge
 		for i in range(1, len(grid)-1):
-			grid[i][0] = bottom # left edge
-			grid[i][len(grid[0])-1] = top # right edge
+			grid[i][0] = bottom # bottom edge
+			grid[i][numGridInY] = top # top edge
 
 	def saveFields(self):
 		np.savetxt("meshTemp.dat", self.meshTemp)
@@ -58,6 +61,7 @@ class Pile:
 		headerString += str(self.dryFraction) + "\n"
 		headerString += str(self.area) + "\n"
 		headerString += str(self.height) + "\n"
+                headerString += str(self.topEdgeOfY) + "\n"
 		headerString += str(self.mass) + "\n"
 		headerString += str(self.bulkRho) + "\n"
 		headerString += str(self.voidFraction)
@@ -75,8 +79,9 @@ class Pile:
 				self.dryFraction = A[4]
 				self.area = A[5]
 				self.height = A[6]
-				self.mass = A[7]
-				self.bulkRho = A[8]
-				self.voidFraction = A[9]
+                                self.topEdgeOfY = A[7]
+				self.mass = A[8]
+				self.bulkRho = A[9]
+				self.voidFraction = A[10]
 		except:
 				print("ERROR OCCURED WHEN LOADING SAVE FILE.")

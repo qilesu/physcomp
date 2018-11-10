@@ -23,7 +23,7 @@ def f2(temp):
 	t = temp-273
 	return 2.142e-4*t*t-2.356e-2*t+1.348
 
-def timeEvolve(pile, dt):
+def timeEvolve(pile, dt):   
 	laplacianT = laplacianFunc(pile.meshTemp, pile.dx, pile.dy)
 	laplacianO2 = laplacianFunc(pile.meshO2, pile.dx, pile.dy)
 	ew = pile.voidFraction
@@ -54,7 +54,10 @@ def timeEvolve(pile, dt):
 				#print ("Xm:", Xm)
 	#print("eatenM:", eatenM)
 
-	for x in range(0, len(pile.meshTemp)-1):
+	for x in range(1, len(pile.meshTemp)-1):
 		pile.meshO2[x][0] = pile.meshO2[x][1]
 
 	pile.eatMass(eatenM)
+        setBoundaryConditions(pile)
+
+def setBoundaryConditions()
