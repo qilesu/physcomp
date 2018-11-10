@@ -22,7 +22,7 @@ def main():
 	pile = Pile(Lx, Ly, dx, dx, 20, 1)
 	steps = 100
 	for i in range(steps):
-		evolve.timeEvolve(pile.meshTemp, evolve.heatDiffusionFunc, pile.dx, pile.dy, dt)
+		evolve.timeEvolve(pile, dt)
 
 	print (pile.meshTemp)
 	plt.imshow(pile.meshTemp)
