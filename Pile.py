@@ -4,7 +4,7 @@ class Pile:
         def __init__(self, Lx, initialH, dx, dy, initialT):
                 self.iniO2 = 0.272 #kg m-3 simple paper
                 self.iniT = initialT # K
-                self.iniX = 2e-2 #mol/m3
+                self.iniX = 2 #mol/m3
                 self.meshTemp = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniT, dtype='float64') # initial temperature in C
                 self.meshO2 = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniO2, dtype='float64') 
                 self.meshX = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniX, dtype='float64')

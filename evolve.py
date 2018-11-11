@@ -3,13 +3,13 @@ import numpy as np
 #def heatDiffusionFunc(laplacian):
         #alpha = 0.00145 # diffusivity
         #return alpha*laplacian; 
-def laplacianFunc(grid, dx, dy):
+def laplacianFunc(grid, dx, dy, topY):
         laplacian = np.zeros_like(grid) # stores lapacian value
         #for i in range(steps):
         # calculate laplacian of temperature at non-edge cell
         # with finite difference
         for i in range(1, len(grid)-1):
-                for j in range(1, len(grid[0])-1):
+                for j in range(1, topY):
                         laplacian[i][j] = (grid[i-1][j]+grid[i+1][j]-2*grid[i][j])/(dx*dx)
                         laplacian[i][j] += (grid[i][j-1]+grid[i][j+1]-2*grid[i][j])/(dy*dy)
 
@@ -24,8 +24,8 @@ def f2(temp):
         return 2.142e-4*t*t-2.356e-2*t+1.348
 
 def timeEvolve(pile, dt):   
-        laplacianT = laplacianFunc(pile.meshTemp, pile.dx, pile.dy)
-        laplacianO2 = laplacianFunc(pile.meshO2, pile.dx, pile.dy)
+        laplacianT = laplacianFunc(pile.meshTemp, pile.dx, pile.dy, pile.topEdgeOfY)
+        laplacianO2 = laplacianFunc(pile.meshO2, pile.dx, pile.dy, pile.topEdgeOfY)
         ew = pile.voidFraction
         pCeff = (ew*1.17*1005+(1-ew)*ew*1150*3320)
         alpha = (ew*(0.026)+(1-ew)*(0.3))/pCeff#0.00145 # diffusivity
@@ -62,4 +62,6 @@ def timeEvolve(pile, dt):
 
 def setBoundaryConditions(pile):
         pile.setBoundaryCondition(pile.meshTemp, pile.iniT, pile.iniT, pile.iniT, pile.iniT)
-        pile.setBoundaryCondition(pile.meshTemp, pile.iniO2, pile.iniO2, pile.iniO2, pile.iniO2)
+        #pile.setBoundaryCondition(pile.meshO2, pile.iniO2, pile.iniO2, pile.iniO2, pile.iniO2)
+        for x in range(1, len(pile.meshTemp)-1):
+                pile.meshO2[x][pile.topEdgeOfY] = pile.iniO2

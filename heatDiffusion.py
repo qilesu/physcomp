@@ -22,14 +22,14 @@ def runSimu(Ly):
 	#Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
 	dt = 20 # seconds
-	initialT = 80
+	initialT = 20
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
 	pile = Pile(Lx, Ly, dx, dx, 273+initialT)
 	initialMass = pile.mass
 	#pile.loadFields()
-	steps = 10000
+	steps = 1000
 	start = 0
 	log_step = 25
 	time_stamps=[]
@@ -46,6 +46,7 @@ def runSimu(Ly):
 			Bacteria.append(interiorAverage(pile.meshX))
 			Mass.append(pile.mass)
 		if(i%(log_step*4)==0):
+			print("pile height: ", pile.height)
 			print("%f%%" % (pile.mass/initialMass*100))
 
 	#print (pile.meshTemp)
