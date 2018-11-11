@@ -16,20 +16,20 @@ def main():
 	Lx = 1 # length in x
 	Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
-	dt = 5 # seconds
-	initialT = 20
+	dt = 10 # seconds
+	initialT = 35
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
 	pile = Pile(Lx, Ly, dx, dx, 273+initialT)
-	steps = 1000
+	steps = 5000
 	Temp = []
 	Oxygen = []
 	Bacteria = []
 	Mass = []
 	for i in range(steps):
 		evolve.timeEvolve(pile, dt)
-		if(i%20==0):
+		if(i%200==0):
 			Temp.append(interiorAverage(pile.meshTemp))
 			Oxygen.append(interiorAverage(pile.meshO2))
 			Bacteria.append(interiorAverage(pile.meshX))
