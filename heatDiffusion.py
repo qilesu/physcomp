@@ -76,8 +76,5 @@ def main():
 	plt.xlabel("time (s)")
 	fig.savefig('Diffusion-Run-Mass-%d-%d.png'%(steps, dt), transparent=True)
 
-	#fig = plt.figure(figsize=(244.0/72, 140.0/72))
-	#plt.savefig('Diffusion-Run-Oxygen-Bacteria-%d-%d.png'%(steps, dt), transparent=True)
-
 if __name__ == '__main__':
 	sys.exit(main())

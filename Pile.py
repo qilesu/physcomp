@@ -35,7 +35,7 @@ class Pile:
 		self.averageRho()
 
 	def computeVoidFraction(self):
-		self.voidFraction = 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
+			self.voidFraction = 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
 
 	def setBoundaryCondition(self, grid, top, bottom, left, right):
 		for j in range(1, len(grid[0])-1):
@@ -44,3 +44,39 @@ class Pile:
 		for i in range(1, len(grid)-1):
 			grid[i][0] = bottom # left edge
 			grid[i][len(grid[0])-1] = top # right edge
+
+	def saveFields(self):
+		np.savetxt("meshTemp.dat", self.meshTemp)
+		np.savetxt("meshO2.dat", self.meshO2)
+		np.savetxt("meshX.dat", self.meshX)
+		# store loose variables
+		empty = np.array([])
+		headerString = str(self.dx) + "\n"
+		headerString += str(self.dy) + "\n"
+		headerString += str(self.rhoMin) + "\n"
+		headerString += str(self.resistance) + "\n"
+		headerString += str(self.dryFraction) + "\n"
+		headerString += str(self.area) + "\n"
+		headerString += str(self.height) + "\n"
+		headerString += str(self.mass) + "\n"
+		headerString += str(self.bulkRho) + "\n"
+		headerString += str(self.voidFraction)
+		np.savetxt("otherVariables.dat", empty, header=headerString, comments='')
+	def loadFields(self):
+		try:
+				self.meshTemp = np.loadtxt("meshTemp.dat")
+				self.meshO2 = np.loadtxt("meshO2.dat")
+				self.meshX = np.loadtxt("meshX.dat")
+				A = np.loadtxt("otherVariables.dat")
+				self.dx = A[0]
+				self.dy = A[1]
+				self.rhoMin = A[2]
+				self.resistance = A[3]
+				self.dryFraction = A[4]
+				self.area = A[5]
+				self.height = A[6]
+				self.mass = A[7]
+				self.bulkRho = A[8]
+				self.voidFraction = A[9]
+		except:
+				print("ERROR OCCURED WHEN LOADING SAVE FILE.")
