@@ -3,12 +3,12 @@ import numpy as np
 class Pile: 
 	def __init__(self, Lx, initialH, dx, dy, initialT):
 		initialO2 = 0.272 #kg m-3 simple paper
+		initialX = 2 #mol/m3
 		self.meshTemp = np.full((round(Lx/dx), round(initialH/dy)), initialT, dtype='float64') # initial temperature in C
 		self.meshO2 = np.full((round(Lx/dx), round(initialH/dy)), initialO2+0.01, dtype='float64') 
-
-		self.setBoundaryCondition(self.meshTemp, 10, 15, 10, 10)
+		self.meshX = np.full((round(Lx/dx), round(initialH/dy)), initialX, dtype='float64')
+		self.setBoundaryCondition(self.meshTemp, 273+10, 273+15, 273+10, 273+10)
 		self.setBoundaryCondition(self.meshO2, initialO2, initialO2, initialO2, initialO2)
-		
 		self.dx = dx
 		self.dy = dy
 		self.rhoMin = 100 #kg m-3
