@@ -21,15 +21,15 @@ def runSimu(Ly):
 	Lx = 1 # length in x
 	#Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
-	dt = 10 # seconds
-	initialT = 35
+	dt = 20 # seconds
+	initialT = 80
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
 	pile = Pile(Lx, Ly, dx, dx, 273+initialT)
 	initialMass = pile.mass
 	#pile.loadFields()
-	steps = 8000
+	steps = 10000
 	start = 0
 	log_step = 25
 	time_stamps=[]
