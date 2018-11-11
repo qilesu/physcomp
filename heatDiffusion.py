@@ -14,30 +14,29 @@ def interiorAverage(grid, topY):
 	
 def main():
 
-	for h in range(1,2):
-		runSimu((0.82+h*0.82)*2)#0.6-1.2
+	for h in range(0,1):
+		runSimu(0.82, 5+h*5)#0.6-1.2
 		#pile = Pile(1, 0.8+h*0.6/5, 0.05, 0.05, 273+20)
 		#print("height,mass,rho")
 		#for x in range(0, 40):	
 			#print("%.3f,%.4f,%.3f" % (pile.height, pile.mass, pile.bulkRho))
 			#pile.eatMass(pile.mass*0.04)
 
-
-def runSimu(Ly):
+def runSimu(Ly, initialT):
 	Lx = 2 # length in x
 	#Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
-	dt = 10 # seconds
-	initialT = 20
+	dt = 30 # seconds
+	#initialT = 20
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
 	pile = Pile(Lx, Ly, dx, dx, 273+initialT)
 	initialMass = pile.mass
 	#pile.loadFields()
-	steps = 30000
+	steps = 8000
 	start = 0
-	log_step = 150
+	log_step = 25
 	time_stamps=[]
 	Temp = []
 	Oxygen = []
@@ -56,7 +55,7 @@ def runSimu(Ly):
 			Oxygen.append(o)
 			Bacteria.append(b)
 			Mass.append(pile.mass)
-		#if(i%(log_step*4)==0):
+		if(i%(log_step*4)==0):
 			print("%.4f%%,%f,%f, %f, %f, %f, %f" % (pile.mass/initialMass*100, i*dt/3600, pile.height,t,o,b, pile.mass))
 			if(pile.mass*pile.height<0):
 				break
@@ -64,7 +63,7 @@ def runSimu(Ly):
 	#print (pile.meshTemp)
 	#pile.saveFields()
 
-	filename = "hoffman2/Tall-H-%.2fm-1mol-%d-collapse" %(Ly, initialT)
+	filename = "varying-temp/H-%.2fm-1mol-%d-collapse" %(Ly, initialT)
 	print(filename)
 
 	#https://stackoverflow.com/questions/23876588/matplotlib-colorbar-in-each-subplot
