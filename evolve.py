@@ -38,7 +38,7 @@ def timeEvolve(pile, dt, ambientT):
         eatenM = 0
         for i in range(1, len(pile.meshTemp)-1):
                 for j in range(1, pile.topEdgeOfY):
-                        dissolvedO2 = pile.meshO2[i][j]/(0.272)/ew*9.3 # mg/L
+                        dissolvedO2 = pile.bulkRho/1000*(1-pile.dryFraction)*pile.meshO2[i][j]/(0.272)/ew*9.3 # mg/L
                         Xp = (1.0e-4)*(pile.bulkRho*pile.dryFraction)/(pile.bulkRho*pile.dryFraction+Kp)*dissolvedO2/(dissolvedO2+Ko)*pile.meshX[i][j]*f1(pile.meshTemp[i][j])*dt
                         Xm = (7.6e-5) * pile.meshX[i][j] * f2(pile.meshTemp[i][j]) * dt
                         pile.meshO2[i][j] += dO2*laplacianO2[i][j]*dt - Xp*(0.032)/Yo
