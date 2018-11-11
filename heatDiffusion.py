@@ -13,29 +13,59 @@ def interiorAverage(grid):
 	return np.average(sample)
 	
 def main():
+	for h in range(1):
+		runSimu(0.8+h*0.05)
+
+
+def runSimu(Ly):
 	Lx = 1 # length in x
-	Ly = 1 # length in y
+	#Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
+<<<<<<< HEAD
 	dt = 10 # seconds
 	initialT = 35
+=======
+	dt = 30 # seconds
+	initialT = 20
+>>>>>>> d5cf8d111cad964b54c58da5fc4ac891f172d076
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
 	pile = Pile(Lx, Ly, dx, dx, 273+initialT)
+<<<<<<< HEAD
 	steps = 5000
+=======
+	initialMass = pile.mass
+	#pile.loadFields()
+	steps = 8000
+	start = 0
+	log_step = 25
+	time_stamps=[]
+>>>>>>> d5cf8d111cad964b54c58da5fc4ac891f172d076
 	Temp = []
 	Oxygen = []
 	Bacteria = []
 	Mass = []
-	for i in range(steps):
+	for i in range(start, start+steps):
 		evolve.timeEvolve(pile, dt)
+<<<<<<< HEAD
 		if(i%200==0):
+=======
+		if(i%log_step==0):
+			time_stamps.append(i*dt/60)
+>>>>>>> d5cf8d111cad964b54c58da5fc4ac891f172d076
 			Temp.append(interiorAverage(pile.meshTemp))
 			Oxygen.append(interiorAverage(pile.meshO2))
 			Bacteria.append(interiorAverage(pile.meshX))
 			Mass.append(pile.mass)
+		if(i%(log_step*4)==0):
+			print("%f%%" % (pile.mass/initialMass*100))
 
-	print (pile.meshTemp)
+	#print (pile.meshTemp)
+	#pile.saveFields()
+
+	filename = "H-%.2fm-2mol-%d" %(Ly, initialT)
+	print(filename)
 
 	#https://stackoverflow.com/questions/23876588/matplotlib-colorbar-in-each-subplot
 	fig = plt.figure(figsize=(16, 12))
@@ -44,10 +74,11 @@ def main():
 	fig.colorbar(im1)
 	ax1.set_title("Temperature %f Kelvin." % (interiorAverage(pile.meshTemp)))
 	ax2 = fig.add_subplot(122)
-	ax2.scatter(range(0,math.floor(steps/20)), Temp)
-	ax2.set_xlabel("time (s)")
+	ax2.scatter(time_stamps, Temp)
+	plt.axhline(y=273+initialT, color='r', linestyle='-')
+	ax2.set_xlabel("time (min)")
 	#fig = plt.figure(figsize=(244.0/72, 140.0/72))
-	plt.savefig('Diffusion-Run-Temperature-%d-%d.png'%(steps, dt), transparent=True)
+	plt.savefig('%s-Temperature-%d-%d-%d.png'%(filename, start, start+steps, dt), transparent=True)
 	
 	fig = plt.figure(figsize=(16, 12))
 	ax1 = fig.add_subplot(121)
@@ -56,9 +87,10 @@ def main():
 	fig.colorbar(im1)
 	ax1.set_title("Oxygen %f kg/m3." % (interiorAverage(pile.meshO2)))
 	ax2 = fig.add_subplot(122)
-	ax2.scatter(range(0,math.floor(steps/20)), Oxygen)
-	ax2.set_xlabel("time (s)")
-	plt.savefig('Diffusion-Run-Oxygen-%d-%d.png'%(steps, dt), transparent=True)
+	ax2.scatter(time_stamps, Oxygen)
+	ax2.set_xlabel("time (min)")
+	plt.axhline(y=0.272, color='r', linestyle='-')
+	plt.savefig('%s-Oxygen-%d-%d-%d.png'%(filename, start, start+steps, dt), transparent=True)
 
 	fig = plt.figure(figsize=(16, 12))
 	ax1 = fig.add_subplot(121)
@@ -66,15 +98,15 @@ def main():
 	fig.colorbar(im1)
 	ax1.set_title("Bacteria %f mol/m3." % (interiorAverage(pile.meshX)))
 	ax2 = fig.add_subplot(122)
-	ax2.scatter(range(0,math.floor(steps/20)), Bacteria)
-	ax2.set_xlabel("time (s)")
-	plt.savefig('Diffusion-Run-Bacteria-%d-%d.png'%(steps, dt), transparent=True)
+	ax2.scatter(time_stamps, Bacteria)
+	ax2.set_xlabel("time (min)")
+	plt.savefig('%s-Bacteria-%d-%d-%d.png'%(filename, start, start+steps, dt), transparent=True)
 
 	fig = plt.figure(figsize=(16, 12))
-	plt.scatter(range(0, math.floor(steps/20)), Mass)
-	plt.title("Mass versus Time")
-	plt.xlabel("time (s)")
-	fig.savefig('Diffusion-Run-Mass-%d-%d.png'%(steps, dt), transparent=True)
+	plt.scatter(time_stamps, Mass)
+	plt.title("Remaining Mass: %f%%"%(pile.mass/initialMass*100))
+	plt.xlabel("time (min)")
+	fig.savefig('%s-Mass-%d-%d-%d.png'%(filename, start, start+steps, dt), transparent=True)
 
 if __name__ == '__main__':
 	sys.exit(main())
