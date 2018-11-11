@@ -16,7 +16,6 @@ def laplacianFunc(grid, dx, dy):
         return laplacian
 
 def f1(temp): #temp in Kelvin
-<<<<<<< HEAD
         t = temp-273
         return -3.11e-4*t*t+3.48e-2*t + 0.0265
 
@@ -54,47 +53,6 @@ def timeEvolve(pile, dt):
                                 #print ("Xp:", Xp)
                                 #print ("Xm:", Xm)
         #print("eatenM:", eatenM)
-=======
-	t = temp-273
-	return -3.11e-4*t*t + 3.48e-2*t + 0.0265
-
-def f2(temp):
-	t = temp-273
-	return 2.142e-4*t*t - 2.356e-2*t + 1.348
-
-def timeEvolve(pile, dt):
-	laplacianT = laplacianFunc(pile.meshTemp, pile.dx, pile.dy)
-	laplacianO2 = laplacianFunc(pile.meshO2, pile.dx, pile.dy)
-	ew = pile.voidFraction
-	pCeff = (ew*1.17*1005+(1-ew)*1150*3320)
-	alpha = (ew*(0.026)+(1-ew)*(0.3))/pCeff#0.00145 # diffusivity
-	dO2 = (0.176/10000)/np.power(273+25, 3/2)*np.power(273+45, 3/2)*ew #https://en.wikipedia.org/wiki/Mass_diffusivity
-	Kp = 0.056 #kg/m3
-	Ko = 10e-2 #mg/L
-	Yo = 1.12 #mol/mol yield rate 
-	combustion  = 0.6 #percentage turned into CO2
-	Yt = combustion*14e6/pCeff #K/kg proportional to O2 consumption
-	
-	# evolve non-edge cells
-	eatenM = 0
-	for i in range(1, len(pile.meshTemp)-1):
-		for j in range(1, len(pile.meshTemp[0])-1):
-			dissolvedO2 = pile.meshO2[i][j]/(0.272)/ew*9.3 # mg/L
-			Xp = (1.0e-4)*(pile.bulkRho*pile.dryFraction)/(pile.bulkRho*pile.dryFraction+Kp)*dissolvedO2/(dissolvedO2+Ko)*pile.meshX[i][j]*f1(pile.meshTemp[i][j])*dt
-			Xm = (7.6e-5) * pile.meshX[i][j] * f2(pile.meshTemp[i][j]) * dt
-			pile.meshO2[i][j] += dO2*laplacianO2[i][j]*dt - Xp*(0.032)/Yo
-			pile.meshTemp[i][j] += alpha*laplacianT[i][j]*dt + Xp * (0.032)/Yo * Yt
-			dM = Xp/Yo*0.180*combustion/6
-			eatenM += dM
-			pile.meshX[i][j] += Xp-Xm
-			#if(j==5 and i==5): 
-				#print ("f2(T)", f2(pile.meshTemp[i][j]))
-				#print ("dissolved O2: ", dissolvedO2)
-				#print ("Kp factor: ", (pile.bulkRho*pile.dryFraction)/(pile.bulkRho*pile.dryFraction+Kp))
-				#print ("Xp:", Xp)
-				#print ("Xm:", Xm)
-	#print("eatenM:", eatenM)
->>>>>>> d5cf8d111cad964b54c58da5fc4ac891f172d076
 
         for x in range(1, len(pile.meshTemp)-1):
                 pile.meshO2[x][0] = pile.meshO2[x][1]

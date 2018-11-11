@@ -21,39 +21,26 @@ def runSimu(Ly):
 	Lx = 1 # length in x
 	#Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
-<<<<<<< HEAD
 	dt = 10 # seconds
 	initialT = 35
-=======
-	dt = 30 # seconds
-	initialT = 20
->>>>>>> d5cf8d111cad964b54c58da5fc4ac891f172d076
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
 	pile = Pile(Lx, Ly, dx, dx, 273+initialT)
-<<<<<<< HEAD
-	steps = 5000
-=======
 	initialMass = pile.mass
 	#pile.loadFields()
 	steps = 8000
 	start = 0
 	log_step = 25
 	time_stamps=[]
->>>>>>> d5cf8d111cad964b54c58da5fc4ac891f172d076
 	Temp = []
 	Oxygen = []
 	Bacteria = []
 	Mass = []
 	for i in range(start, start+steps):
 		evolve.timeEvolve(pile, dt)
-<<<<<<< HEAD
-		if(i%200==0):
-=======
 		if(i%log_step==0):
 			time_stamps.append(i*dt/60)
->>>>>>> d5cf8d111cad964b54c58da5fc4ac891f172d076
 			Temp.append(interiorAverage(pile.meshTemp))
 			Oxygen.append(interiorAverage(pile.meshO2))
 			Bacteria.append(interiorAverage(pile.meshX))
