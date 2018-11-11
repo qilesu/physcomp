@@ -17,23 +17,25 @@ def laplacianFunc(grid, dx, dy):
 
 def f1(temp): #temp in Kelvin
 	t = temp-273
-	return -3.11e-4*t*t+3.48e-2*t + 0.0265
+	return -3.11e-4*t*t + 3.48e-2*t + 0.0265
 
 def f2(temp):
 	t = temp-273
-	return 2.142e-4*t*t-2.356e-2*t+1.348
+	return 2.142e-4*t*t - 2.356e-2*t + 1.348
 
 def timeEvolve(pile, dt):
 	laplacianT = laplacianFunc(pile.meshTemp, pile.dx, pile.dy)
 	laplacianO2 = laplacianFunc(pile.meshO2, pile.dx, pile.dy)
 	ew = pile.voidFraction
-	pCeff = (ew*1.17*1005+(1-ew)*ew*1150*3320)
+	pCeff = (ew*1.17*1005+(1-ew)*1150*3320)
 	alpha = (ew*(0.026)+(1-ew)*(0.3))/pCeff#0.00145 # diffusivity
 	dO2 = (0.176/10000)/np.power(273+25, 3/2)*np.power(273+45, 3/2)*ew #https://en.wikipedia.org/wiki/Mass_diffusivity
 	Kp = 0.056 #kg/m3
 	Ko = 10e-2 #mg/L
 	Yo = 1.12 #mol/mol yield rate 
-	Yt = 14e6/pCeff #K/kg proportional to O2 consumption
+	combustion  = 0.6 #percentage turned into CO2
+	Yt = combustion*14e6/pCeff #K/kg proportional to O2 consumption
+	
 	# evolve non-edge cells
 	eatenM = 0
 	for i in range(1, len(pile.meshTemp)-1):
@@ -43,7 +45,7 @@ def timeEvolve(pile, dt):
 			Xm = (7.6e-5) * pile.meshX[i][j] * f2(pile.meshTemp[i][j]) * dt
 			pile.meshO2[i][j] += dO2*laplacianO2[i][j]*dt - Xp*(0.032)/Yo
 			pile.meshTemp[i][j] += alpha*laplacianT[i][j]*dt + Xp * (0.032)/Yo * Yt
-			dM = Xp/Yo*0.180/6
+			dM = Xp/Yo*0.180*combustion/6
 			eatenM += dM
 			pile.meshX[i][j] += Xp-Xm
 			#if(j==5 and i==5): 

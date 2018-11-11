@@ -3,17 +3,17 @@ import numpy as np
 class Pile: 
 	def __init__(self, Lx, initialH, dx, dy, initialT):
 		initialO2 = 0.272 #kg m-3 simple paper
-		initialX = 2e-2 #mol/m3
+		initialX = 2 #2 #mol/m3
 		self.meshTemp = np.full((round(Lx/dx), round(initialH/dy)), initialT, dtype='float64') # initial temperature in C
-		self.meshO2 = np.full((round(Lx/dx), round(initialH/dy)), initialO2+0.01, dtype='float64') 
+		self.meshO2 = np.full((round(Lx/dx), round(initialH/dy)), initialO2, dtype='float64') 
 		self.meshX = np.full((round(Lx/dx), round(initialH/dy)), initialX, dtype='float64')
-		self.setBoundaryCondition(self.meshTemp, 273+10, 273+15, 273+10, 273+10)
+		self.setBoundaryCondition(self.meshTemp, initialT, initialT, initialT, initialT)
 		self.setBoundaryCondition(self.meshO2, initialO2, initialO2, initialO2, initialO2)
 		self.dx = dx
 		self.dy = dy
 		self.rhoMin = 100 #kg m-3
 		self.resistance = 73/9.8 # E/g
-		self.dryFraction = 0.3 #mass fraction
+		self.dryFraction = 0.4#0.3 #dry mass fraction
 		self.area = 1
 		self.height = initialH
 		self.initMass()
@@ -62,21 +62,24 @@ class Pile:
 		headerString += str(self.bulkRho) + "\n"
 		headerString += str(self.voidFraction)
 		np.savetxt("otherVariables.dat", empty, header=headerString, comments='')
+
 	def loadFields(self):
 		try:
-				self.meshTemp = np.loadtxt("meshTemp.dat")
-				self.meshO2 = np.loadtxt("meshO2.dat")
-				self.meshX = np.loadtxt("meshX.dat")
-				A = np.loadtxt("otherVariables.dat")
-				self.dx = A[0]
-				self.dy = A[1]
-				self.rhoMin = A[2]
-				self.resistance = A[3]
-				self.dryFraction = A[4]
-				self.area = A[5]
-				self.height = A[6]
-				self.mass = A[7]
-				self.bulkRho = A[8]
-				self.voidFraction = A[9]
+			self.meshTemp = np.loadtxt("meshTemp.dat")
+			self.meshO2 = np.loadtxt("meshO2.dat")
+			self.meshX = np.loadtxt("meshX.dat")
+			A = np.loadtxt("otherVariables.dat")
+			self.dx = A[0]
+			self.dy = A[1]
+			self.rhoMin = A[2]
+			self.resistance = A[3]
+			self.dryFraction = A[4]
+			self.area = A[5]
+			self.height = A[6]
+			self.mass = A[7]
+			self.bulkRho = A[8]
+			self.voidFraction = A[9]
+			print("keep running?")
 		except:
-				print("ERROR OCCURED WHEN LOADING SAVE FILE.")
+			print("ERROR OCCURED WHEN LOADING SAVE FILE.")
+
