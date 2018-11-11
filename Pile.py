@@ -1,7 +1,7 @@
 import numpy as np
 
 class Pile: 
-        def __init__(self, Lx, initialH, dx, dy, initialT):
+        def __init__(self, Lx, initialH, dx, dy, initialT, ds):
                 self.iniO2 = 0.272 #kg m-3 simple paper
                 self.iniT = initialT # K
                 self.iniX = 2 #mol/m3
@@ -12,7 +12,7 @@ class Pile:
                 self.dy = dy
                 self.rhoMin = 100 #kg m-3
                 self.resistance = 73/9.8 # E/g
-                self.dryFraction = 0.3 #mass fraction
+                self.dryFraction = ds#0.3 #mass fraction
                 self.area = 1
                 self.height = initialH
                 self.topEdgeOfY = int(round(initialH/dy))
