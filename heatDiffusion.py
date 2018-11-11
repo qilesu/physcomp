@@ -15,7 +15,7 @@ def interiorAverage(grid, topY):
 def main():
 
 	for h in range(0,1):
-		runSimu(0.82, 0.1)#H: 0.5-1.5
+		runSimu(0.5, 0.4)#H: 0.5-1.5
 		#pile = Pile(1, 0.8+h*0.6/5, 0.05, 0.05, 273+20)
 		#print("height,mass,rho")
 		#for x in range(0, 40):	
@@ -23,12 +23,12 @@ def main():
 			#pile.eatMass(pile.mass*0.04)
 
 def runSimu(Ly, ds):
-	Lx = 2 # length in x
+	Lx = 1 # length in x
 	#Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
 	dt = 30 # seconds
 	#initialT = 20
-	filename = "grid/H-%.2fm-ds-%.2f%%-2mol-15-collapse" %(Ly, ds)
+	filename = "grid-dis/-H-%.2fm-ds-%.2f%%-2mol-15-collapse" %(Ly, ds)
 	print(filename)
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
@@ -36,7 +36,7 @@ def runSimu(Ly, ds):
 	pile = Pile(Lx, Ly, dx, dx, 273+15, ds)
 	initialMass = pile.mass
 	#pile.loadFields()
-	steps = 2000
+	steps = 8000
 	start = 0
 	log_step = 25
 	time_stamps=[]
