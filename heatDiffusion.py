@@ -15,56 +15,61 @@ def interiorAverage(grid, topY):
 def main():
 
 	for h in range(0,1):
-		runSimu(0.82, 5+h*5)#0.6-1.2
+		runSimu(0.82)#0.6-1.2
 		#pile = Pile(1, 0.8+h*0.6/5, 0.05, 0.05, 273+20)
 		#print("height,mass,rho")
 		#for x in range(0, 40):	
 			#print("%.3f,%.4f,%.3f" % (pile.height, pile.mass, pile.bulkRho))
 			#pile.eatMass(pile.mass*0.04)
 
-def runSimu(Ly, initialT):
+def runSimu(Ly):
 	Lx = 2 # length in x
 	#Ly = 1 # length in y
 	dx = 0.05 # grid spacing m
 	dt = 30 # seconds
 	#initialT = 20
+	filename = "varying-temp/H-%.2fm-2mol-15-collapse" %(Ly)
+	print(filename)
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
-	pile = Pile(Lx, Ly, dx, dx, 273+initialT)
+	pile = Pile(Lx, Ly, dx, dx, 273+15)
 	initialMass = pile.mass
 	#pile.loadFields()
 	steps = 8000
 	start = 0
 	log_step = 25
 	time_stamps=[]
+	ATemp = []
 	Temp = []
 	Oxygen = []
 	Bacteria = []
 	Mass = []
-	print("percentage mass,TIME(h),HEIGHT,TEMP,OXY,BAC,MASS")
+	print("percentage mass,TIME(h),HEIGHT,TEMP0,TEMP,OXY,BAC,MASS")
+	timeNow = 0
 	for i in range(start, start+steps):
-		evolve.timeEvolve(pile, dt)
+		ambientT = 10*np.sin(2*np.pi/(24*3600)*timeNow) + 15 + 273
+		evolve.timeEvolve(pile, dt, ambientT)
+		timeNow += dt
 		output = ''
 		if(i%log_step==0):
 			time_stamps.append(i*dt/3600)
 			t=interiorAverage(pile.meshTemp, pile.topEdgeOfY)
 			o=interiorAverage(pile.meshO2, pile.topEdgeOfY)
 			b=interiorAverage(pile.meshX, pile.topEdgeOfY)
+			ATemp.append(ambientT)
 			Temp.append(t)
+			
 			Oxygen.append(o)
 			Bacteria.append(b)
 			Mass.append(pile.mass)
 		if(i%(log_step*4)==0):
-			print("%.4f%%,%f,%f, %f, %f, %f, %f" % (pile.mass/initialMass*100, i*dt/3600, pile.height,t,o,b, pile.mass))
+			print("%.4f%%,%f,%f,%f, %f, %f, %f, %f" % (pile.mass/initialMass*100, i*dt/3600, pile.height,ambientT,t,o,b, pile.mass))
 			if(pile.mass*pile.height<0):
 				break
 
 	#print (pile.meshTemp)
 	#pile.saveFields()
-
-	filename = "varying-temp/H-%.2fm-1mol-%d-collapse" %(Ly, initialT)
-	print(filename)
 
 	#https://stackoverflow.com/questions/23876588/matplotlib-colorbar-in-each-subplot
 	fig = plt.figure(figsize=(16, 12))
@@ -74,7 +79,8 @@ def runSimu(Ly, initialT):
 	ax1.set_title("Temperature %f Kelvin." % (interiorAverage(pile.meshTemp, pile.topEdgeOfY)))
 	ax2 = fig.add_subplot(122)
 	ax2.scatter(time_stamps, Temp)
-	plt.axhline(y=273+initialT, color='r', linestyle='-')
+	ax2.scatter(time_stamps, ATemp)
+	#plt.axhline(y=273+initialT, color='r', linestyle='-')
 	ax2.set_xlabel("time (min)")
 	#fig = plt.figure(figsize=(244.0/72, 140.0/72))
 	plt.savefig('%s-Temperature-%d-%d-%d.png'%(filename, start, start+steps, dt), transparent=True)
