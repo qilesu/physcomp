@@ -1,2 +1,6 @@
 *.png
 __pycache__
+*.dat
+*.txt
+*.xlsx
+~$*
