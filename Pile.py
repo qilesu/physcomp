@@ -4,7 +4,7 @@ class Pile:
         def __init__(self, Lx, initialH, dx, dy, initialT, ds):
                 self.iniO2 = 0.272 #kg m-3 simple paper
                 self.iniT = initialT # K
-                self.iniX = 2 #mol/m3
+                self.iniX = 2#2 #mol/m3
                 self.meshTemp = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniT, dtype='float64') # initial temperature in C
                 self.meshO2 = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniO2, dtype='float64') 
                 self.meshX = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniX, dtype='float64')
@@ -38,15 +38,20 @@ class Pile:
                 self.topEdgeOfY = int(round(self.height/self.dy))
 
         def computeVoidFraction(self):
-                        self.voidFraction = 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
+                self.voidFraction = 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
 
         def setBoundaryCondition(self, grid, top, bottom, left, right):
-                for j in range(1, len(grid[0])-1):
-                        grid[0][j] = left # left edge
-                        grid[len(grid)-1][j] = right # right edge
-                for i in range(1, len(grid)-1):
-                        grid[i][0] = bottom # bottom edge
-                        grid[i][self.topEdgeOfY] = top # top edge
+                # j in range(1, len(grid[0])-1):
+                #        grid[0][j] = left # left edge
+                #        grid[len(grid)-1][j] = right # right edge
+                grid[0, 1:-1] = left
+                grid[-1, 1:-1] = right
+                #for i in range(1, len(grid)-1):
+                #        grid[i][0] = bottom # bottom edge
+                #        grid[i][self.topEdgeOfY] = top # top edge
+                grid[1:-1, 0] = bottom
+                grid[1:-1, self.topEdgeOfY:] = top
+                #grid[:, self.topEdgeOfY+1:] = top
 
         def saveFields(self):
                 np.savetxt("meshTemp.dat", self.meshTemp)
@@ -69,25 +74,27 @@ class Pile:
                 headerString += str(self.bulkRho) + "\n"
                 headerString += str(self.voidFraction)
                 np.savetxt("otherVariables.dat", empty, header=headerString, comments='')
+        
+        
         def loadFields(self):
                 try:
-                                self.meshTemp = np.loadtxt("meshTemp.dat")
-                                self.meshO2 = np.loadtxt("meshO2.dat")
-                                self.meshX = np.loadtxt("meshX.dat")
-                                A = np.loadtxt("otherVariables.dat")
-                                self.iniO2 = A[0]
-                                self.iniT = A[1]
-                                self.iniX = A[2]
-                                self.dx = A[3]
-                                self.dy = A[4]
-                                self.rhoMin = A[5]
-                                self.resistance = A[6]
-                                self.dryFraction = A[7]
-                                self.area = A[8]
-                                self.height = A[9]
-                                self.topEdgeOfY = A[10]
-                                self.mass = A[11]
-                                self.bulkRho = A[12]
-                                self.voidFraction = A[13]
+                        self.meshTemp = np.loadtxt("meshTemp.dat")
+                        self.meshO2 = np.loadtxt("meshO2.dat")
+                        self.meshX = np.loadtxt("meshX.dat")
+                        A = np.loadtxt("otherVariables.dat")
+                        self.iniO2 = A[0]
+                        self.iniT = A[1]
+                        self.iniX = A[2]
+                        self.dx = A[3]
+                        self.dy = A[4]
+                        self.rhoMin = A[5]
+                        self.resistance = A[6]
+                        self.dryFraction = A[7]
+                        self.area = A[8]
+                        self.height = A[9]
+                        self.topEdgeOfY = A[10]
+                        self.mass = A[11]
+                        self.bulkRho = A[12]
+                        self.voidFraction = A[13]
                 except:
-                                print("ERROR OCCURED WHEN LOADING SAVE FILE.")
+                        print("ERROR OCCURED WHEN LOADING SAVED FILE.")

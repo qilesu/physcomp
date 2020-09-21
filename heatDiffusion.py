@@ -9,13 +9,13 @@ from Pile import Pile
 import math
 
 def interiorAverage(grid, topY):
-	sample = grid[1:len(grid), 1:topY]
+	sample = grid[1:, 1:topY]
 	return np.average(sample)
 	
 def main():
 
 	for h in range(0,1):
-		runSimu(0.5, 0.4)#H: 0.5-1.5
+		runSimu(1.5, 0.4)#H: 0.5-1.5
 		#pile = Pile(1, 0.8+h*0.6/5, 0.05, 0.05, 273+20)
 		#print("height,mass,rho")
 		#for x in range(0, 40):	
@@ -28,12 +28,12 @@ def runSimu(Ly, ds):
 	dx = 0.05 # grid spacing m
 	dt = 30 # seconds
 	#initialT = 20
-	filename = "grid-dis/-H-%.2fm-ds-%.2f%%-2mol-15-collapse" %(Ly, ds)
+	filename = "grid-dis/-H-%.2fm-ds-%.2f%%-2mol-20-collapse" %(Ly, ds)
 	print(filename)
 
 	#meshTemp = np.full((round(Lx/dx), round(Ly/dx)), 20, dtype='float64') # initial temperature in C
 	#setBoundaryCondition(meshTemp, 10, 15, 10, 10)
-	pile = Pile(Lx, Ly, dx, dx, 273+15, ds)
+	pile = Pile(Lx, Ly, dx, dx, 273+20, ds)
 	initialMass = pile.mass
 	#pile.loadFields()
 	steps = 8000
