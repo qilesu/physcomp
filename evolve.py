@@ -1,36 +1,56 @@
 import numpy as np
 from scipy import ndimage
+
 #
-#def heatDiffusionFunc(laplacian):
-        #alpha = 0.00145 # diffusivity
-        #return alpha*laplacian; 
-def laplacianFunc(grid, dx, dy, topY):
+def laplacianFunc(grid, dx, dy, dz, topZ):
         laplacian = np.zeros_like(grid) # stores lapacian value
         #for i in range(steps):
         # calculate laplacian of temperature at non-edge cell
         # with finite difference
         for i in range(1, len(grid)-1):
-                for j in range(1, topY):
-                        laplacian[i][j] = (grid[i-1][j]+grid[i+1][j]-2*grid[i][j])/(dx*dx)
-                        laplacian[i][j] += (grid[i][j-1]+grid[i][j+1]-2*grid[i][j])/(dy*dy)
-
+                for j in range(1, grid.shape[1]-1):
+                        for k in range (1, topZ):
+                                laplacian[i, j, k] = (grid[i-1][j][k]+grid[i+1][j][k]-2*grid[i][j][k])/(dx*dx)
+                                laplacian[i, j, k] += (grid[i][j-1][k]+grid[i][j+1][k]-2*grid[i][j][k])/(dy*dy)
+                                laplacian[i, j, k] += (grid[i][j][k-1]+grid[i][j][k+1]-2*grid[i][j][k])/(dy*dy)
+        #print(laplacian)
         return laplacian
 
-def laplacianFuncVec(grid, dx, dy, topY):
+def laplacianFuncVec(grid, dx, dy, dz, topZ):
         d2x = np.eye(grid.shape[1])
         d2x_roll1 = np.roll(d2x, 1, axis=0)
         d2x_roll2 = np.roll(d2x, -1, axis=0)
         d2x = d2x_roll1+d2x_roll2-2*d2x
-        
-        laplacian = np.dot(grid, d2x)/(dx*dx)
+        #print(d2x)
 
-        d2y = np.eye(grid.shape[0])
+        lx = np.dot(grid.transpose(2, 0, 1), d2x)/(dx*dx)
+        lx = lx.transpose(1, 2, 0)
+
+        d2y = np.eye(grid.shape[2])
         d2y_roll1 = np.roll(d2y, 1, axis=0)
         d2y_roll2 = np.roll(d2y, -1, axis=0)
         d2y = d2y_roll1+d2y_roll2-2*d2y
         
-        laplacian += np.dot(d2y, grid)/(dy*dy)
+        #laplacian += np.dot(d2y, grid)/(dy*dy)
+        ly = np.dot(grid, d2y)/(dy*dy)
+        #ly = lx.transpose(2, 1, 0)
 
+        d2z = np.eye(grid.shape[0])
+        d2z_roll1 = np.roll(d2z, 1, axis=0)
+        d2z_roll2 = np.roll(d2z, -1, axis=0)
+        d2z = d2z_roll1+d2z_roll2-2*d2z
+        
+        #laplacian += np.dot(d2y, grid)/(dy*dy)
+        lz = np.dot(grid.transpose(1, 2, 0), d2z)/(dz*dz)
+        lz = lz.transpose(2, 0, 1)
+
+        laplacian = lx+ly+lz
+        laplacian[0, :, :] = 0
+        laplacian[-1, :, :] = 0
+        laplacian[:, 0, :] = 0
+        laplacian[:, -1 :] = 0
+        laplacian[:, :, 0] = 0
+        laplacian[:, :, topZ:] = 0
         return laplacian
 
 def f1(temp): #temp in Kelvin
@@ -42,8 +62,8 @@ def f2(temp):
         return 2.142e-4*t*t-2.356e-2*t+1.348
 
 def timeEvolve(pile, dt, ambientT):   
-        laplacianT = laplacianFuncVec(pile.meshTemp, pile.dx, pile.dy, pile.topEdgeOfY)
-        laplacianO2 = laplacianFuncVec(pile.meshO2, pile.dx, pile.dy, pile.topEdgeOfY)
+        laplacianT = laplacianFuncVec(pile.meshTemp, pile.dx, pile.dy, pile.dz, pile.topEdgeOfZ)
+        laplacianO2 = laplacianFuncVec(pile.meshO2, pile.dx, pile.dy, pile.dz, pile.topEdgeOfZ)
         ew = pile.voidFraction
         pCeff = (ew*1.17*1005+(1-ew)*ew*1150*3320)
         alpha = (ew*(0.026)+(1-ew)*(0.3))/pCeff#0.00145 # diffusivity
@@ -84,5 +104,42 @@ def setBoundaryConditions(pile, ambientT):
         pile.setBoundaryCondition(pile.meshO2, pile.iniO2, pile.iniO2, pile.iniO2, pile.iniO2)
         #for x in range(1, len(pile.meshTemp)-1):
         #        pile.meshO2[x][pile.topEdgeOfY] = pile.iniO2
-        pile.meshX[:, pile.topEdgeOfY:]=0
+        pile.meshX[:, :, pile.topEdgeOfZ:]=0
         #pile.meshO2[1:-1][pile.topEdgeOfY] = pile.iniO2
+
+if __name__ == "__main__":
+        field = [[[1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1]],
+                  [[1, 1, 1, 1, 1],
+                  [1, 2, 2, 2, 1],
+                  [1, 2, 3, 2, 1],
+                  [1, 2, 3, 2, 1],
+                  [1, 1, 1, 1, 1]],
+                  [[1, 1, 1, 1, 1],
+                  [1, 2, 3, 2, 1],
+                  [1, 2, 2, 2, 1],
+                  [1, 3, 3, 2, 1],
+                  [1, 1, 1, 1, 1]],
+                  [[1, 1, 1, 1, 1],
+                  [1, 2, 3, 2, 1],
+                  [1, 2, 2, 2, 1],
+                  [1, 2, 3, 3, 1],
+                  [1, 1, 1, 1, 1]],
+                  [[1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1]]]
+
+        field1 = np.asarray(field, dtype=np.float64)
+        field2 = np.asarray(field, dtype=np.float64)
+        for i in range(100):
+                l1 = laplacianFunc(field1, 1, 1, 1, 4)
+                l2 = laplacianFuncVec(field2, 1, 1, 1, 4)
+                field1 += l1*0.1 
+                field2 += l2*0.1 
+        print(field2)
+        print(l1==l2)

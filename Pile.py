@@ -1,21 +1,23 @@
 import numpy as np
+from scipy.ndimage import interpolation
 
 class Pile: 
-        def __init__(self, Lx, initialH, dx, dy, initialT, ds):
+        def __init__(self, Lx, Ly, initialH, dx, dy, dz, initialT, ds):
                 self.iniO2 = 0.272 #kg m-3 simple paper
                 self.iniT = initialT # K
                 self.iniX = 2#2 #mol/m3
-                self.meshTemp = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniT, dtype='float64') # initial temperature in C
-                self.meshO2 = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniO2, dtype='float64') 
-                self.meshX = np.full((round(Lx/dx)+2, round(initialH/dy)+2), self.iniX, dtype='float64')
+                self.meshTemp = np.full((round(Lx/dx)+2, round(Ly/dy)+2, round(initialH/dz)+2), self.iniT, dtype='float64') # initial temperature in C
+                self.meshO2 = np.full((round(Lx/dx)+2, round(Ly/dy)+2, round(initialH/dz)+2), self.iniO2, dtype='float64') 
+                self.meshX = np.full((round(Lx/dx)+2, round(Ly/dy)+2, round(initialH/dz)+2), self.iniX, dtype='float64')
                 self.dx = dx
                 self.dy = dy
+                self.dz = dz
                 self.rhoMin = 100 #kg m-3
                 self.resistance = 73/9.8 # E/g
                 self.dryFraction = ds#0.3 #mass fraction
-                self.area = 1
+                self.area = Lx*Ly
                 self.height = initialH
-                self.topEdgeOfY = int(round(initialH/dy))
+                self.topEdgeOfZ = int(round(initialH/dz))
                 self.initMass()
                 self.averageRho()
                 self.computeVoidFraction() #volume fraction
@@ -35,7 +37,10 @@ class Pile:
                 self.mass -= decrement
                 self.computeHeight()
                 self.averageRho()
-                self.topEdgeOfY = int(round(self.height/self.dy))
+                prevH = self.topEdgeOfZ
+                self.topEdgeOfZ = int(round(self.height/self.dz))
+                ratio = self.topEdgeOfZ/prevH
+                self.meshX[:, :, 0:self.topEdgeOfZ] = interpolation.zoom(self.meshX[:, :, 0:prevH], [1, 1, ratio])
 
         def computeVoidFraction(self):
                 self.voidFraction = 1-(self.dryFraction/1150+1/1000-self.dryFraction/1000)*self.bulkRho
@@ -44,13 +49,15 @@ class Pile:
                 # j in range(1, len(grid[0])-1):
                 #        grid[0][j] = left # left edge
                 #        grid[len(grid)-1][j] = right # right edge
-                grid[0, 1:-1] = left
-                grid[-1, 1:-1] = right
+                grid[0, 1:-1, :] = left
+                grid[-1, 1:-1, :] = right
+                grid[1:-1, 0, :] = left
+                grid[1:-1, -1 :] = right
                 #for i in range(1, len(grid)-1):
                 #        grid[i][0] = bottom # bottom edge
                 #        grid[i][self.topEdgeOfY] = top # top edge
-                grid[1:-1, 0] = bottom
-                grid[1:-1, self.topEdgeOfY:] = top
+                grid[1:-1, 1:-1, 0] = bottom
+                grid[1:-1, 1:-1, self.topEdgeOfZ:] = top
                 #grid[:, self.topEdgeOfY+1:] = top
 
         def saveFields(self):
@@ -64,12 +71,13 @@ class Pile:
                 headerString = str(self.iniX) + "\n"
                 headerString = str(self.dx) + "\n"
                 headerString += str(self.dy) + "\n"
+                headerString += str(self.dz) + "\n"
                 headerString += str(self.rhoMin) + "\n"
                 headerString += str(self.resistance) + "\n"
                 headerString += str(self.dryFraction) + "\n"
                 headerString += str(self.area) + "\n"
                 headerString += str(self.height) + "\n"
-                headerString += str(self.topEdgeOfY) + "\n"
+                headerString += str(self.topEdgeOfZ) + "\n"
                 headerString += str(self.mass) + "\n"
                 headerString += str(self.bulkRho) + "\n"
                 headerString += str(self.voidFraction)
@@ -87,12 +95,13 @@ class Pile:
                         self.iniX = A[2]
                         self.dx = A[3]
                         self.dy = A[4]
+                        self.dz = A[4]
                         self.rhoMin = A[5]
                         self.resistance = A[6]
                         self.dryFraction = A[7]
                         self.area = A[8]
                         self.height = A[9]
-                        self.topEdgeOfY = A[10]
+                        self.topEdgeOfZ = A[10]
                         self.mass = A[11]
                         self.bulkRho = A[12]
                         self.voidFraction = A[13]
